@@ -1,16 +1,39 @@
-
-# Reassessing "Classify & Count" Quantification Method
-
-## ECIR2021: Reproducibility track
+#Reassessing "Classify & Count" Quantification Method
+##ECIR2021: Reproducibility track
 
 This repo contains the code to reproduce all experiments discussed 
 in the paper entitled _Reassessing "Classify & Count" Quantification Method_
 which is submitted for consideration to the _ECIR2021's track on Reproducibility_
 
 ## Requirements
-* skicit-learn, numpy, ...
-* svmperf with patch (see below)
-* pytorch ...
+* skicit-learn, numpy, scipy
+* svmperf patched for quantification (see below)
+* pytorch
+* absl-py
+* tqdm
+* matplotlib
+
+A simple way to get started is to create a conda environment from the
+configuration file [environment_cc.yml](environment_cc.yml).
+At this point it is useful to run the scripts that prepare the
+datasets and the svmperf package (explained below):
+
+```
+conda create ecir -f environment_cc.yml
+conda activate ecir
+git clone https://github.com/AlexMoreo/CC.git
+cd CC
+chmod +x *.sh
+./prepare_datasets.sh
+./prepare_svmperf.sh
+```
+
+Test that everything works by running:
+
+```
+cd src
+python3 main.py --dataset ../datasets/kindle --method cc --learner svm --error none
+```
 
 ### SVM-perf with quantification-oriented losses
 In order to run experiments involving SVM(Q), SVM(KLD), SVM(NKLD),
