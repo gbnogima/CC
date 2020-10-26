@@ -17,7 +17,7 @@ FLAGS = flags.FLAGS
 
 
 def main(_):
-    assert not os.path.exists(f'{FLAGS.results_path}/{run_name()}.pkl'), 'already computed!'
+
     benchmark = load_dataset()
     benchmark = prepare_dataset(benchmark)
 

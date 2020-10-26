@@ -65,10 +65,12 @@ for method in methods:
     print(f'\twriting table {latex_path} for method {method}')
 
     if method == 'cc':
-        caption = """Results showing how the quapy error of CC changes 
+        caption = """Results showing how the quantification error of CC changes 
         according to the measure used in hyperparameter optimization; a 
-        negative percentages indicates a reduction in error with respect to 
-        using vanilla accuracy ($A$) as this measure."""
+        negative percentage indicates a reduction in error with respect to 
+        using the method with default parameters. The background cell color
+        indicates improvement (green) or deterioration (red), while its 
+        tone intensity is proportional to the absolute magnitude. """
     else:
         caption = 'Same as Table~\\ref{tab:CC}, but with '+method.upper()+' instead of CC.'
 
@@ -221,7 +223,8 @@ tabular += add_result('hdy', 'lr', 'mae')
 #tabular += add_result('ave', 'svr', 'none')
 #tabular += add_result('quanet', 'cnn', 'none')
 tabular += add_result('quanet', 'cnn', 'mae')
-tabular += '\\hline'
+#tabular += '\\hline'
+tabular += '\cline{2-8}\n'
 tabular += add_result('mlpe', 'none', 'none')
 
 
@@ -263,10 +266,11 @@ ss = {ccx: {m:statistical_significance_CC(ccx, m, datasets, learners, optimizati
 
 table = """
 \\begin{table}[t]
-  \caption{FOR RUN 0: Results showing the statistical significance tests for pairs
-  ....
-  For a pair of optimizations X vs Y, symbol $\gg$ (resp. $>$) indicates that method X performs
-  better (i.e., yields lower error) than Y, and that the difference in performance, as averaged across datasets 
+  \caption{
+  Two-sided t-test results on \emph{related} samples of error scores across datasets and learners.
+  For a pair of optimization measures X vs Y, symbol $\gg$ (resp. $>$) indicates that method X performs
+  better (i.e., yields lower error) than Y, and that the difference in performance, as averaged across 
+  pairs of experiments through datasets 
   and learners, is statistically significant at a confidence score of $\\alpha=0.001$ (resp. $\\alpha=0.05$).
   Symbols $\ll$ and $<$ hold similar meaning but indicate X performs worse (i.e., yields higher error) than Y.
   Symbol $\sim$ instead indicates the differences in performance between X and Y are not

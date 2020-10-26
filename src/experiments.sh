@@ -13,9 +13,13 @@ done
 
 # runs the CC variants, with different learners, optimizing different evaluation metrics
 for dataset in kindle hp imdb ; do
-  for method in cc acc pcc pacc ; do
-    for learner in svm lr mnb rf cnn ; do
-      for error in none acce f1e mae ; do
+  for learner in svm lr mnb rf cnn ; do
+    for error in none acce f1e mae ; do
+      for method in cc pcc ; do
+          $PY --dataset $datapath/$dataset --method $method --learner $learner --error $error --suffix "run0"
+      done
+      # ACC and PACC's performances might be affected by the random split {train, val}; we run 10 experiments
+      for method in acc pacc ; do
         for run in {0..9} ; do
           $PY --dataset $datapath/$dataset --method $method --learner $learner --error $error --suffix "run"$run
         done
