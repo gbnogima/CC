@@ -25,23 +25,22 @@ def optimize_for_quantification(method : BaseQuantifier,
     # the true prevalences might slightly differ from the requested prevalences
     true_prevalences = np.array([validation.sampling_from_index(idx).prevalence() for idx in sampling_indexes])
 
-    def validation_task(values):
+    print(f'[starting optimization with n_jobs={n_jobs}]')
+    scores_params=[]
+    for values in itertools.product(*params_values):
         params = {k: values[i] for i, k in enumerate(params_keys)}
 
         # overrides default parameters with the parameters being explored at this iteration
         method.set_params(**params)
         method.fit(training)
 
-        estim_prevalences = [method.quantify(validation.sampling_from_index(idx).documents) for idx in sampling_indexes]
+        estim_prevalences = Parallel(n_jobs=n_jobs)(
+            delayed(method.quantify)(validation.sampling_from_index(idx).documents) for idx in sampling_indexes
+        )
         estim_prevalences = np.asarray(estim_prevalences)
         score = error(true_prevalences, estim_prevalences)
         print(f'checking hyperparams={params} got {error.__name__} score {score:.5f}')
-        return score, params
-
-    print(f'[starting optimization with n_jobs={n_jobs}]')
-    scores_params = Parallel(n_jobs=n_jobs)(
-        delayed(validation_task)(values) for values in itertools.product(*params_values)
-    )
+        scores_params.append((score, params))
     scores, params = zip(*scores_params)
     best_pos = np.argmin(scores)
     best_params, best_score = params[best_pos], scores[best_pos]
