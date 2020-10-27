@@ -27,6 +27,11 @@ class AggregativeProbabilisticQuantifier(AggregativeQuantifier):
     def soft_classify(self, data):
         return self.learner.predict_proba(data)[:, self.learner.classes_ == 1].flatten()
 
+    def set_params(self, **parameters):
+        if isinstance(self.learner, CalibratedClassifierCV):
+            parameters={'base_estimator__'+k:v for k,v in parameters.items()}
+        self.learner.set_params(**parameters)
+
 
 # Helper
 # ------------------------------------
