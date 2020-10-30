@@ -19,7 +19,7 @@ At this point it is useful to run the scripts that prepare the
 datasets and the svmperf package (explained below):
 
 ```
-conda create ecir -f environment_cc.yml
+conda env create ecir -f environment_cc.yml
 conda activate ecir
 git clone https://github.com/AlexMoreo/CC.git
 cd CC
