@@ -20,9 +20,10 @@ def main(_):
 
     benchmark = load_dataset()
     benchmark = prepare_dataset(benchmark)
-
+    
     learner = instantiate_learner()
-    method = instantiate_quantifier(learner)
+    method = instantiate_quantifier(learner)   
+
     model_selection(method, benchmark)
 
     true_prevalences, estim_prevalences = produce_predictions(method, benchmark.test)

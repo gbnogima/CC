@@ -7,6 +7,10 @@ from tqdm import tqdm
 from quapy.functional import prevalence_linspace, natural_prevalence_sampling
 from quapy.util import parallelize
 
+import keras
+import ktrain
+from ktrain import text
+
 
 class LabelledCollection:
 
@@ -119,7 +123,28 @@ class TQDataset:
         self.training.documents = index.fit_transform(self.training.documents)
         self.test.documents = index.transform(self.test.documents, n_jobs=-1)
         self.vocabulary_ = index.vocabulary_
+    
+    def bert_preprocessing(self):
+        (x_train, y_train), (x_test, y_test), preproc = text.texts_from_array(x_train=self.training.documents, y_train=self.training.labels,
+                                                                        val_pct=0.1,
+                                                                        class_names=[0, 1],
+                                                                        preprocess_mode='bert',
+                                                                        maxlen=64, 
+                                                                        max_features=35000)
 
+        model = text.text_classifier(name = 'bert',
+                            train_data = (x_train, y_train),
+                            preproc = preproc)
+
+        classifier = ktrain.get_learner(model, 
+                            train_data=(x_train, y_train), 
+                            val_data=(x_test, y_test),
+                            batch_size=64
+                            )
+        self.vocabulary_ = []
+        return {'preproc': preproc, 'model': model, 'classifier': classifier}
+        
+        
     @classmethod
     def from_files(cls, train_path, test_path):
         training = LabelledCollection.from_file(train_path)

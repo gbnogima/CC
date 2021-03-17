@@ -16,6 +16,9 @@ from quapy.method.non_aggregative import *
 from quapy.optimization import *
 from quapy.util import plot_diagonal
 
+import bert
+from bert import Bert
+
 FLAGS = flags.FLAGS
 
 # quantifiers:
@@ -51,6 +54,7 @@ LEARNER_ALIASES = {
     'rf': lambda: RandomForestClassifier(),
     'svmperf': lambda: SVMperf(settings.SVM_PERF_HOME),
     'cnn': lambda: NeuralClassifierTrainer('cnn', FLAGS.vocabulary_size, device=settings.TORCHDEVICE),
+    'bert': lambda: Bert(),
     'none': lambda: None
 }
 
@@ -94,6 +98,8 @@ def prepare_dataset(benchmark: TQDataset):
         benchmark.tfidfvectorize()
     elif FLAGS.learner.lower() in DEEPLEARNING_BASED:
         benchmark.index()
+    elif FLAGS.learner.lower() == 'bert':
+        bert.params = benchmark.bert_preprocessing()
     else:
         raise ValueError(f'unknown representation for learner {FLAGS.learner}')
     if hasattr(FLAGS, 'vocabulary_size'):
@@ -119,7 +125,7 @@ def instantiate_quantifier(learner):
     method = FLAGS.method.lower()
     if method not in QUANTIFIER_ALIASES:
         raise ValueError(f'unknown quantification method {FLAGS.method}')
-
+    
     return QUANTIFIER_ALIASES[method](learner)
 
 
@@ -129,7 +135,11 @@ def instantiate_error():
 
 
 def model_selection(method, benchmark: LabelledCollection):
-    if FLAGS.error != 'none':
+    learner = FLAGS.learner.lower()
+    if learner == 'bert':
+        logging.info('using BERT classifier (error set as none)')
+        method.fit(benchmark.training)
+    elif FLAGS.error != 'none':
         error = instantiate_error()
         optimization(method, error, benchmark.training)
     else:
@@ -170,6 +180,7 @@ def optimization(method, error, training):
     logging.info(f'exploring hyperparameters')
 
     learner = FLAGS.learner.lower()
+
     if error in errors.CLASSIFICATION_ERROR:
         logging.info(f'optimizing for classification [{error.__name__}]')
         optimize_for_classification(
@@ -196,11 +207,17 @@ def optimization(method, error, training):
 def produce_predictions(method, test, n_prevalences=21, repeats=100):
     logging.info(f'generating predictions for test')
 
-    def test_method(sample, method):
-        true_prevalence = sample.prevalence()
-        estim_prevalence = method.quantify(sample.documents)
-        return true_prevalence, estim_prevalence
+    learner = FLAGS.learner.lower()
+    results = bert_predicion(method, test, n_prevalences, repeats) if learner == 'bert' else parallel_prediction(method, test, n_prevalences, repeats)
 
+    true_prevalences, estim_prevalences = zip(*results)
+    true_prevalences = np.asarray(true_prevalences)
+    estim_prevalences = np.asarray(estim_prevalences)
+
+    return true_prevalences, estim_prevalences
+
+
+def parallel_prediction(method, test, n_prevalences, repeats):
     results = Parallel(n_jobs=decide_njobs(method))(
         delayed(test_method)(sample, method) for sample in tqdm(
             test.artificial_sampling_generator(FLAGS.sample_size, n_prevalences=n_prevalences, repeats=repeats),
@@ -208,12 +225,22 @@ def produce_predictions(method, test, n_prevalences=21, repeats=100):
             desc='testing'
         )
     )
+    return results
 
-    true_prevalences, estim_prevalences = zip(*results)
-    true_prevalences = np.asarray(true_prevalences)
-    estim_prevalences = np.asarray(estim_prevalences)
 
-    return true_prevalences, estim_prevalences
+def bert_predicion(method, test, n_prevalences, repeats):
+    results = [test_method(sample, method) for sample in tqdm(
+            test.artificial_sampling_generator(FLAGS.sample_size, n_prevalences=n_prevalences, repeats=repeats),
+            total=n_prevalences*repeats,
+            desc='testing'
+        )]
+    return results
+
+
+def test_method(sample, method):
+        true_prevalence = sample.prevalence()
+        estim_prevalence = method.quantify(sample.documents)
+        return true_prevalence, estim_prevalence
 
 
 def evaluate_experiment(true_prevalences, estim_prevalences, n_prevalences=21, repeats=100, show_plot=False):
