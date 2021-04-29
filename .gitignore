@@ -1,0 +1,8 @@
+datasets/
+results/
+src/__pycache__/
+src/quapy/__pycache__/
+src/quapy/classification/__pycache__/
+src/quapy/dataset/__pycache__/
+src/quapy/method/__pycache__/
+svm_perf_quantification/
