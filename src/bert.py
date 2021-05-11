@@ -11,7 +11,7 @@ class Bert():
         self.preproc = params['preproc']
 
     def fit(self, documents, labels):
-        self.classifier.fit_onecycle(lr = 2e-5, epochs = 1)
+        self.classifier.fit_onecycle(lr = 2e-5, epochs = 3)
         self.predictor = ktrain.get_predictor(self.classifier.model, self.preproc)
         return self
     

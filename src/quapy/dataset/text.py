@@ -126,10 +126,9 @@ class TQDataset:
     
     def bert_preprocessing(self):
         (x_train, y_train), (x_test, y_test), preproc = text.texts_from_array(x_train=self.training.documents, y_train=self.training.labels,
-                                                                        val_pct=0.1,
                                                                         class_names=[0, 1],
                                                                         preprocess_mode='bert',
-                                                                        maxlen=64, 
+                                                                        maxlen=128, 
                                                                         max_features=35000)
 
         model = text.text_classifier(name = 'bert',
@@ -139,7 +138,7 @@ class TQDataset:
         classifier = ktrain.get_learner(model, 
                             train_data=(x_train, y_train), 
                             val_data=(x_test, y_test),
-                            batch_size=64
+                            batch_size=8
                             )
         self.vocabulary_ = []
         return {'preproc': preproc, 'model': model, 'classifier': classifier}
