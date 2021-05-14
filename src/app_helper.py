@@ -256,5 +256,13 @@ def evaluate_experiment(true_prevalences, estim_prevalences, n_prevalences=21, r
         print(f'\t{eval.__name__}={eval(true_prevalences, estim_prevalences):.3f}')
     print()
 
+    write_csv(f'{errors.mae(true_prevalences, estim_prevalences):.3f}', f'{errors.mrae(true_prevalences, estim_prevalences):.3f}')
+
     if show_plot:
         plot_diagonal(true_prevalences, {f'{FLAGS.method}-{FLAGS.learner}-{FLAGS.error}': estim_prevalences})
+
+def write_csv(mae, mrae):
+    import csv
+    with open('results.csv', 'a', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow([FLAGS.dataset, FLAGS.method.lower(), mae, mrae])
