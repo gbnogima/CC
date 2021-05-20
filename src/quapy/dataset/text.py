@@ -125,12 +125,16 @@ class TQDataset:
         self.vocabulary_ = index.vocabulary_
     
     def bert_preprocessing(self):
+        print('BERT training size: ',len(self.training.documents))
         (x_train, y_train), (x_test, y_test), preproc = text.texts_from_array(x_train=self.training.documents, y_train=self.training.labels,
                                                                         class_names=[0, 1],
                                                                         preprocess_mode='bert',
                                                                         maxlen=128, 
-                                                                        max_features=35000)
+                                                                        max_features=35000,
+                                                                        x_test=self.training.documents, y_test=self.training.labels)
 
+        print('x_train',len(x_train[0]))
+        print('x_test',len(x_test[0]))
         model = text.text_classifier(name = 'bert',
                             train_data = (x_train, y_train),
                             preproc = preproc)
@@ -140,8 +144,11 @@ class TQDataset:
                             val_data=(x_test, y_test),
                             batch_size=8
                             )
+
+        classifier.fit_onecycle(lr = 2e-5, epochs = 3)
+        predictor = ktrain.get_predictor(classifier.model, preproc)
         self.vocabulary_ = []
-        return {'preproc': preproc, 'model': model, 'classifier': classifier}
+        return {'preproc': preproc, 'model': model, 'classifier': classifier, 'predictor': predictor}
         
         
     @classmethod

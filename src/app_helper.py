@@ -68,6 +68,7 @@ HYPERPARAMS = {
     'rf': {'n_estimators': [10, 50, 100, 250, 500], 'max_depth': [5, 15, 30], 'criterion': ['gini', 'entropy']},
     'svmperf': {'C': __C_range},
     'cnn': {'embedding_size': [100, 300], 'hidden_size': [256, 512], 'drop_p': [0, 0.5], 'weight_decay': [0, 1e-4]},
+    'bert': {'confidence': np.linspace(0., 1., 500)},
     'none': {}
 }
 
@@ -135,11 +136,7 @@ def instantiate_error():
 
 
 def model_selection(method, benchmark: LabelledCollection):
-    learner = FLAGS.learner.lower()
-    if learner == 'bert':
-        logging.info('using BERT classifier (error set as none)')
-        method.fit(benchmark.training)
-    elif FLAGS.error != 'none':
+    if FLAGS.error != 'none':
         error = instantiate_error()
         optimization(method, error, benchmark.training)
     else:
@@ -191,15 +188,25 @@ def optimization(method, error, training):
         )
     elif error in errors.QUANTIFICATION_ERROR:
         logging.info(f'optimizing for quantification [{error.__name__}]')
-        optimize_for_quantification(
-            method,
-            training,
-            error,
-            FLAGS.sample_size,
-            sample_prevalences=artificial_prevalence_sampling(21*10),
-            param_grid=HYPERPARAMS[learner],
-            n_jobs=decide_njobs(method)
+        if learner == 'bert':
+            optimize_bert_for_quantification(
+                method,
+                training,
+                error,
+                FLAGS.sample_size,
+                sample_prevalences=artificial_prevalence_sampling(21*10),
+                param_grid=HYPERPARAMS[learner]
         )
+        else:
+            optimize_for_quantification(
+                method,
+                training,
+                error,
+                FLAGS.sample_size,
+                sample_prevalences=artificial_prevalence_sampling(21*10),
+                param_grid=HYPERPARAMS[learner],
+                n_jobs=decide_njobs(method)
+            )
     else:
         raise ValueError('unexpected value for parameter "error"')
 
