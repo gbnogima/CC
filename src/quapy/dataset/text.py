@@ -145,10 +145,8 @@ class TQDataset:
                             batch_size=8
                             )
 
-        classifier.fit_onecycle(lr = 2e-5, epochs = 3)
-        predictor = ktrain.get_predictor(classifier.model, preproc)
         self.vocabulary_ = []
-        return {'preproc': preproc, 'model': model, 'classifier': classifier, 'predictor': predictor}
+        return {'preproc': preproc, 'model': model, 'classifier': classifier}
         
         
     @classmethod

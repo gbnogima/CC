@@ -11,8 +11,7 @@ def optimize_bert_for_quantification(method : BaseQuantifier,
                                 error,
                                 sample_size,
                                 sample_prevalences,
-                                param_grid,
-                                n_jobs=-1):
+                                param_grid):
 
     training, validation = devel_set.split_stratified(0.6)
 

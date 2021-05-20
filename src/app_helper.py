@@ -136,8 +136,12 @@ def instantiate_error():
 
 
 def model_selection(method, benchmark: LabelledCollection):
+    learner = FLAGS.learner.lower()
     if FLAGS.error != 'none':
         error = instantiate_error()
+        if learner == 'bert':
+            logging.info('using BERT classifier (error set as none)')
+            method.fit(benchmark.training)
         optimization(method, error, benchmark.training)
     else:
         logging.info('using default classifier (no model selection will be performed)')

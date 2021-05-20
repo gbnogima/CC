@@ -2,11 +2,6 @@ params = None
 
 import ktrain
 import numpy as np
-import keras
-import ktrain
-from ktrain import text
-from quapy.functional import *
-
 
 class Bert():     
 
@@ -14,12 +9,12 @@ class Bert():
         self.classifier = params['classifier']
         self.model = params['model']
         self.preproc = params['preproc']
-        self.predictor = params['predictor']
         self.cache = {}
-
+        self.parameters = {'confidence': 0.5}
 
     def fit(self, documents, labels):
-        # fake fit (model trained!)
+        self.classifier.fit_onecycle(lr = 2e-5, epochs = 3)
+        self.predictor = ktrain.get_predictor(self.classifier.model, self.preproc)
         return self
     
     def predict(self, documents):
@@ -53,5 +48,5 @@ class Bert():
     
     def set_params(self, **parameters):
         self.parameters = parameters
-        print('parameters = ', parameters)
-        return
+        print('parameters = ',parameters)
+        pass
