@@ -24,10 +24,10 @@ class Bert():
 
         probs = []
         if hash_docs in self.cache:
-          print('#### predicting (in cache): ',confidence,len(documents))
+        #   print('#### predicting (in cache): ',confidence,len(documents))
           probs = self.cache[hash_docs]
         else:
-          print('#### predicting: ',confidence,len(documents))
+        #   print('#### predicting: ',confidence,len(documents))
           probs = self.predictor.predict_proba(documents)
           self.cache[hash_docs] = probs
         

@@ -276,4 +276,4 @@ def write_csv(mae, mrae):
     import csv
     with open('results.csv', 'a', newline='') as file:
         writer = csv.writer(file)
-        writer.writerow([FLAGS.dataset, FLAGS.method.lower(), mae, mrae])
+        writer.writerow([FLAGS.dataset, FLAGS.method.lower(), FLAGS.error, mae, mrae])
