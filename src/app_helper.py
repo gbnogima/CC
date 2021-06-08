@@ -184,12 +184,20 @@ def optimization(method, error, training):
 
     if error in errors.CLASSIFICATION_ERROR:
         logging.info(f'optimizing for classification [{error.__name__}]')
-        optimize_for_classification(
-            method,
-            training,
-            error,
-            param_grid=HYPERPARAMS[learner]
-        )
+        if learner == 'bert':
+            optimize_bert_for_classification(
+                method,
+                training,
+                error,
+                param_grid=HYPERPARAMS[learner]
+            )
+        else:
+            optimize_for_classification(
+                method,
+                training,
+                error,
+                param_grid=HYPERPARAMS[learner]
+            )
     elif error in errors.QUANTIFICATION_ERROR:
         logging.info(f'optimizing for quantification [{error.__name__}]')
         if learner == 'bert':

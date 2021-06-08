@@ -89,6 +89,34 @@ def optimize_for_quantification(method : BaseQuantifier,
     method.set_params(**best_params)
     method.fit(devel_set)
 
+def optimize_bert_for_classification(method : BaseQuantifier,
+                                devel_set : LabelledCollection,
+                                error,
+                                param_grid):
+
+    training, validation = devel_set.split_stratified(0.6)
+
+    params_keys = list(param_grid.keys())
+    params_values = list(param_grid.values())
+
+    best_p, best_error = None, None
+    pbar = tqdm(list(itertools.product(*params_values)))
+    for values_ in pbar:
+        params_ = {k: values_[i] for i, k in enumerate(params_keys)}
+
+        # overrides default parameters with the parameters being explored at this iteration
+        method.set_params(**params_)
+        class_predictions = method.classify(validation.documents)
+        score = error(validation.labels, class_predictions)
+
+        if best_error is None or score < best_error:
+            best_error, best_p = score, params_
+        pbar.set_description(
+            f'checking hyperparams={params_} got got {error.__name__} score={score:.5f} [best params = {best_p} with score {best_error:.5f}]'
+        )
+
+    print(f'optimization finished: refitting for {best_p} on the whole development set')
+    method.set_params(**best_p)
 
 def optimize_for_classification(method : BaseQuantifier,
                                 devel_set : LabelledCollection,
