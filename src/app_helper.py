@@ -16,6 +16,8 @@ from quapy.method.non_aggregative import *
 from quapy.optimization import *
 from quapy.util import plot_diagonal
 
+from sklearn.metrics import classification_report
+
 FLAGS = flags.FLAGS
 
 # quantifiers:
@@ -231,3 +233,7 @@ def evaluate_experiment(true_prevalences, estim_prevalences, n_prevalences=21, r
 
     if show_plot:
         plot_diagonal(true_prevalences, {f'{FLAGS.method}-{FLAGS.learner}-{FLAGS.error}': estim_prevalences})
+
+def evaluate_classification(y_true, y_pred):
+    print(classification_report(y_true, y_pred))
+    

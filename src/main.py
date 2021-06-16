@@ -26,7 +26,8 @@ def main(_):
     model_selection(method, benchmark)
 
     true_prevalences, estim_prevalences = produce_predictions(method, benchmark.test)
-    evaluate_experiment(true_prevalences, estim_prevalences, show_plot=FLAGS.plot)
+    evaluate_classification(true_prevalences, estim_prevalences)
+    # evaluate_experiment(true_prevalences, estim_prevalences, show_plot=FLAGS.plot)
     save_results(true_prevalences, estim_prevalences)
 
 
