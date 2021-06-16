@@ -234,6 +234,11 @@ def evaluate_experiment(true_prevalences, estim_prevalences, n_prevalences=21, r
     if show_plot:
         plot_diagonal(true_prevalences, {f'{FLAGS.method}-{FLAGS.learner}-{FLAGS.error}': estim_prevalences})
 
-def evaluate_classification(y_true, y_pred):
+
+def evaluate_classification(method, test):
+    logging.info(f'generating predictions for test')
+
+    y_true = test.labels
+    y_pred = method.classify(test.documents)
     print(classification_report(y_true, y_pred))
     

@@ -25,10 +25,10 @@ def main(_):
     method = instantiate_quantifier(learner)
     model_selection(method, benchmark)
 
-    true_prevalences, estim_prevalences = produce_predictions(method, benchmark.test)
-    evaluate_classification(true_prevalences, estim_prevalences)
+    # true_prevalences, estim_prevalences = produce_predictions(method, benchmark.test)
+    evaluate_classification(method, benchmark.test)
     # evaluate_experiment(true_prevalences, estim_prevalences, show_plot=FLAGS.plot)
-    save_results(true_prevalences, estim_prevalences)
+    # save_results(true_prevalences, estim_prevalences)
 
 
 if __name__ == '__main__':
