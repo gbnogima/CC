@@ -243,6 +243,6 @@ def evaluate_classification(method, test):
 
     report = classification_report(y_true, y_pred, output_dict=True)
     df = pd.DataFrame(report).transpose()
-    df.to_csv("results/" + FLAGS.method.lower() + "-" + Path(FLAGS.dataset).name + ".csv", header=True, index=True)
+    df.to_csv("results/" + FLAGS.learner.lower() + "-" + Path(FLAGS.dataset).name + ".csv", header=True, index=True)
     print(classification_report(y_true, y_pred))
     
