@@ -20,6 +20,8 @@ from sklearn.metrics import classification_report
 
 FLAGS = flags.FLAGS
 
+import panda as pd
+
 # quantifiers:
 # ----------------------------------------
 # alias for quantifiers and default configurations
@@ -236,9 +238,11 @@ def evaluate_experiment(true_prevalences, estim_prevalences, n_prevalences=21, r
 
 
 def evaluate_classification(method, test):
-    logging.info(f'generating predictions for test')
-
     y_true = test.labels
     y_pred = method.classify(test.documents)
+
+    report = classification_report(y_true, y_pred, output_dict=True)
+    df = pd.DataFrame(report).transpose()
+    df.to_csv(FLAGS.method.lower() + "-" + Path(FLAGS.dataset).name + ".csv", header=True, index=True)
     print(classification_report(y_true, y_pred))
     
