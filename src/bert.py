@@ -24,10 +24,8 @@ class Bert():
 
         probs = []
         if hash_docs in self.cache:
-        #   print('#### predicting (in cache): ',confidence,len(documents))
           probs = self.cache[hash_docs]
         else:
-        #   print('#### predicting: ',confidence,len(documents))
           probs = self.predictor.predict_proba(documents)
           self.cache[hash_docs] = probs
         
@@ -36,15 +34,11 @@ class Bert():
           if r[0] >= confidence:
             L.append(0)
           else: L.append(1)
-        #print('#####=== v1: ',np.asarray(L))
-        #print('#####=== v2: ',(self.predictor.predict(documents)))
-        #return np.asarray(self.predictor.predict(documents))
         return np.asarray(L)
 
 
     def get_params(self):
         return self.parameters
-        #return None
     
     def set_params(self, **parameters):
         self.parameters = parameters
